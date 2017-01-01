@@ -1,0 +1,19 @@
+function [ matrix ] = quat2rotm( quat )
+
+%Calculate rotation matrix from quaternion
+if(length(quat(1,:)) == 1 && length(quat(:,1)) == 4)
+    
+    q_x_mat = [0,-quat(3),quat(2);quat(3),0,-quat(1);-quat(2),quat(1),0];
+    q_vect = quat(2:4);
+    I = eye(3);
+    matrix = ((quat(1)*quat(1)) - q_vect'*q_vect) * I + 2*(q_vect*q_vect') + 2*quat(1)*q_x_mat;
+    
+else
+    
+    matrix = [0,0,0;0,0,0;0,0,0];
+    
+end
+
+
+end
+

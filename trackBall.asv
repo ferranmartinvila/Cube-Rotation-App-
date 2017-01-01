@@ -321,16 +321,6 @@ if(vector(1) ~= 0 || vector(2) ~= 0 || vector(3) ~= 0)
     
 %Calculate the rotation matrix ----------------------------
 Rmat = Eaa2rotMat(vector, angle);
-set(handles.rotmat1_1, 'String', Rmat(1));
-set(handles.rotmat1_2, 'String', Rmat(4));
-set(handles.rotmat1_3, 'String', Rmat(7));
-set(handles.rotmat2_1, 'String', Rmat(2));
-set(handles.rotmat2_2, 'String', Rmat(5));
-set(handles.rotmat2_3, 'String', Rmat(8));
-set(handles.rotmat3_1, 'String', Rmat(3));
-set(handles.rotmat3_2, 'String', Rmat(6));
-set(handles.rotmat3_3, 'String', Rmat(9));
-
 
 %Update other panels --------------------------------------
 
@@ -496,13 +486,12 @@ Rmat = quat2rotm(quaternion);
 set(handles.rotmat1_1, 'String', Rmat(1));
 set(handles.rotmat1_2, 'String', Rmat(4));
 set(handles.rotmat1_3, 'String', Rmat(7));
-set(handles.rotmat2_1, 'String', Rmat(2));
-set(handles.rotmat2_2, 'String', Rmat(5));
-set(handles.rotmat2_3, 'String', Rmat(8));
-set(handles.rotmat3_1, 'String', Rmat(3));
-set(handles.rotmat3_2, 'String', Rmat(6));
-set(handles.rotmat3_3, 'String', Rmat(9));
-
+set(handles.rotmat1_1, 'String', Rmat(4));
+set(handles.rotmat1_2, 'String', Rmat(5));
+set(handles.rotmat1_3, 'String', Rmat(6));
+set(handles.rotmat1_1, 'String', Rmat(7));
+set(handles.rotmat1_2, 'String', Rmat(8));
+set(handles.rotmat1_3, 'String', Rmat(9));
 %Update other panels --------------------------------------
 [e_axis,angle] = rotm2e_axis(Rmat);
 set(handles.e_axis_x, 'String', e_axis(1));

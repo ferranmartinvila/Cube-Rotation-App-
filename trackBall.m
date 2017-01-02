@@ -22,7 +22,7 @@ function varargout = trackBall(varargin)
 
 % Edit the above text to modify the response to help trackBall
 
-% Last Modified by GUIDE v2.5 01-Jan-2017 16:16:50
+% Last Modified by GUIDE v2.5 02-Jan-2017 18:30:31
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -504,7 +504,7 @@ set(handles.rotmat3_2, 'String', Rmat(6));
 set(handles.rotmat3_3, 'String', Rmat(9));
 
 %Update other panels --------------------------------------
-[e_axis,angle] = rotm2e_axis(Rmat);
+[e_axis,angle] = rotMat2Eaa(Rmat);
 set(handles.e_axis_x, 'String', e_axis(1));
 set(handles.e_axis_y, 'String', e_axis(2));
 set(handles.e_axis_z, 'String', e_axis(3));
@@ -600,6 +600,137 @@ function quaternion_i_Callback(hObject, eventdata, handles)
 % --- Executes during object creation, after setting all properties.
 function quaternion_i_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to quaternion_i (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in calculate_eulerAngles.
+function calculate_eulerAngles_Callback(hObject, eventdata, handles)
+% hObject    handle to calculate_eulerAngles (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+X_ang = str2double(get(handles.X_angle, 'String'));
+Y_ang = str2double(get(handles.Y_angle, 'String'));
+Z_ang = str2double(get(handles.Z_angle, 'String'));
+
+R_info= zeros(3,3);
+R_info(1) = str2double(get(handles.rotmat1_1, 'String'));
+R_info(4) = str2double(get(handles.rotmat1_2, 'String'));
+R_info(7) = str2double(get(handles.rotmat1_3, 'String'));
+R_info(2) = str2double(get(handles.rotmat2_1, 'String'));
+R_info(4) = str2double(get(handles.rotmat2_2, 'String'));
+R_info(8) = str2double(get(handles.rotmat2_3, 'String'));
+R_info(3) = str2double(get(handles.rotmat3_1, 'String'));
+R_info(6) = str2double(get(handles.rotmat3_2, 'String'));
+R_info(9) = str2double(get(handles.rotmat3_3, 'String'));
+
+%Calculate Rotation matrix with angles --------------------
+[roll, pitch, yaw] = rotM2eAngles(R_info);
+Rmat = RotwithEaaAngles(X_ang + roll, Y_ang + pitch, Z_ang + yaw);
+
+%Update other panels --------------------------------------
+for c = 1:9
+    if round(Rmat(c),6) == 0
+        Rmat(c) = 0;
+    end
+end
+%Panel Euler principal Angle and Axis ---------------------
+[e_axis,angle] = rotMat2Eaa(Rmat);
+set(handles.e_axis_x, 'String', e_axis(1));
+set(handles.e_axis_y, 'String', e_axis(2));
+set(handles.e_axis_z, 'String', e_axis(3));
+set(handles.e_axis_angle, 'String', angle);
+set(handles.e_axis_slider, 'Value', angle);
+
+%Panel Quaternion -----------------------------------------
+Quaternion = rotm2quat(Rmat);
+set(handles.quaternion_i, 'String', Quaternion(1));
+set(handles.quaternion_X, 'String', Quaternion(2));
+set(handles.quaternion_Y, 'String', Quaternion(3));
+set(handles.quaternion_Z, 'String', Quaternion(4));
+
+%Rotation Matrix ------------------------------------------
+set(handles.rotmat1_1, 'String', Rmat(1));
+set(handles.rotmat1_2, 'String', Rmat(4));
+set(handles.rotmat1_3, 'String', Rmat(7));
+set(handles.rotmat2_1, 'String', Rmat(2));
+set(handles.rotmat2_2, 'String', Rmat(5));
+set(handles.rotmat2_3, 'String', Rmat(8));
+set(handles.rotmat3_1, 'String', Rmat(3));
+set(handles.rotmat3_2, 'String', Rmat(6));
+set(handles.rotmat3_3, 'String', Rmat(9));
+
+
+%Apply the rotation ---------------------------------------
+R = Rmat;
+handles.Cube = RedrawCube(R,handles.Cube);
+
+
+function X_angle_Callback(hObject, eventdata, handles)
+% hObject    handle to X_angle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of X_angle as text
+%        str2double(get(hObject,'String')) returns contents of X_angle as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function X_angle_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to X_angle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function Y_angle_Callback(hObject, eventdata, handles)
+% hObject    handle to Y_angle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of Y_angle as text
+%        str2double(get(hObject,'String')) returns contents of Y_angle as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function Y_angle_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Y_angle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function Z_angle_Callback(hObject, eventdata, handles)
+% hObject    handle to Z_angle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of Z_angle as text
+%        str2double(get(hObject,'String')) returns contents of Z_angle as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function Z_angle_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Z_angle (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 

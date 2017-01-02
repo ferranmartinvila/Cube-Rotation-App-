@@ -620,27 +620,10 @@ X_ang = str2double(get(handles.X_angle, 'String'));
 Y_ang = str2double(get(handles.Y_angle, 'String'));
 Z_ang = str2double(get(handles.Z_angle, 'String'));
 
-R_info= zeros(3,3);
-R_info(1) = str2double(get(handles.rotmat1_1, 'String'));
-R_info(4) = str2double(get(handles.rotmat1_2, 'String'));
-R_info(7) = str2double(get(handles.rotmat1_3, 'String'));
-R_info(2) = str2double(get(handles.rotmat2_1, 'String'));
-R_info(4) = str2double(get(handles.rotmat2_2, 'String'));
-R_info(8) = str2double(get(handles.rotmat2_3, 'String'));
-R_info(3) = str2double(get(handles.rotmat3_1, 'String'));
-R_info(6) = str2double(get(handles.rotmat3_2, 'String'));
-R_info(9) = str2double(get(handles.rotmat3_3, 'String'));
-
 %Calculate Rotation matrix with angles --------------------
-[roll, pitch, yaw] = rotM2eAngles(R_info);
-Rmat = RotwithEaaAngles(X_ang + roll, Y_ang + pitch, Z_ang + yaw);
+Rmat = RotwithEaaAngles(X_ang, Y_ang, Z_ang);
 
 %Update other panels --------------------------------------
-for c = 1:9
-    if round(Rmat(c),6) == 0
-        Rmat(c) = 0;
-    end
-end
 %Panel Euler principal Angle and Axis ---------------------
 [e_axis,angle] = rotMat2Eaa(Rmat);
 set(handles.e_axis_x, 'String', e_axis(1));

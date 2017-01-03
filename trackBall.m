@@ -22,7 +22,7 @@ function varargout = trackBall(varargin)
 
 % Edit the above text to modify the response to help trackBall
 
-% Last Modified by GUIDE v2.5 02-Jan-2017 18:30:31
+% Last Modified by GUIDE v2.5 03-Jan-2017 20:34:35
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -53,19 +53,19 @@ function trackBall_OpeningFcn(hObject, eventdata, handles, varargin)
 % varargin   command line arguments to trackBall (see VARARGIN)
 
 
-set(hObject,'WindowButtonDownFcn',{@my_MouseClickFcn,handles.axes1});
-set(hObject,'WindowButtonUpFcn',{@my_MouseReleaseFcn,handles.axes1});
-axes(handles.axes1);
+set(hObject,'WindowButtonDownFcn',{@my_MouseClickFcn,handles.cube});
+set(hObject,'WindowButtonUpFcn',{@my_MouseReleaseFcn,handles.cube});
+axes(handles.cube);
 
 handles.Cube=DrawCube(eye(3));
 
-set(handles.axes1,'CameraPosition',...
+set(handles.cube,'CameraPosition',...
     [0 0 5],'CameraTarget',...
     [0 0 -5],'CameraUpVector',...
     [0 1 0],'DataAspectRatio',...
     [1 1 1]);
 
-set(handles.axes1,'xlim',[-3 3],'ylim',[-3 3],'visible','off','color','none');
+set(handles.cube,'xlim',[-3 3],'ylim',[-3 3],'visible','off','color','none');
 
 % Choose default command line output for trackBall
 handles.output = hObject;
@@ -75,7 +75,6 @@ guidata(hObject, handles);
 
 % UIWAIT makes trackBall wait for user response (see UIRESUME)
 % uiwait(handles.angle);
-
 
 % --- Outputs from this function are returned to the command line.
 function varargout = trackBall_OutputFcn(hObject, eventdata, handles) 
@@ -87,17 +86,62 @@ function varargout = trackBall_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
+
+%Ball rotation functions --------------
+function SetStartPoint(point)
+global start_point;
+start_point = point;
+
+function point = GetStartPoint()
+global start_point;
+point = start_point;
+
+function SetEndPoint(point)
+global end_point;
+end_point = point;
+
+function point = GetEndPoint()
+global end_point;
+point = end_point;
+
+function [rad] = GetRad()
+rad = 3;
+% -------------------------------------
+
 function my_MouseClickFcn(obj,event,hObject)
 
 handles=guidata(obj);
-xlim = get(handles.axes1,'xlim');
-ylim = get(handles.axes1,'ylim');
-mousepos=get(handles.axes1,'CurrentPoint');
+xlim = get(handles.cube,'xlim');
+ylim = get(handles.cube,'ylim');
+mousepos=get(handles.cube,'CurrentPoint');
 xmouse = mousepos(1,1);
 ymouse = mousepos(1,2);
 
+%Check if mouse is inside cube limits
 if xmouse > xlim(1) && xmouse < xlim(2) && ymouse > ylim(1) && ymouse < ylim(2)
 
+    %Build start 3D point
+    rad = GetRad();
+
+    %First case
+    if((xmouse*xmouse + ymouse*ymouse) < 0.5*(rad*rad))
+       
+        z = sqrt(rad*rad - xmouse*xmouse - ymouse*ymouse);
+        start_point = [xmouse;ymouse;z];
+        
+    %Second case
+    else
+        
+        z = (rad*rad)/(2*sqrt(xmouse*xmouse + ymouse*ymouse));
+        start_point = [xmouse;ymouse;z] / sqrt(xmouse*xmouse + ymouse*ymouse + z*z);
+        
+    end
+    
+    %Set the initial point
+    last_start_point = GetStartPoint();
+    SetStartPoint(start_point + last_start_point);
+    
+    
     set(handles.angle,'WindowButtonMotionFcn',{@my_MouseMoveFcn,hObject});
 end
 guidata(hObject,handles)
@@ -111,41 +155,45 @@ guidata(hObject,handles);
 function my_MouseMoveFcn(obj,event,hObject)
 
 handles=guidata(obj);
-xlim = get(handles.axes1,'xlim');
-ylim = get(handles.axes1,'ylim');
-mousepos=get(handles.axes1,'CurrentPoint');
+xlim = get(handles.cube,'xlim');
+ylim = get(handles.cube,'ylim');
+mousepos=get(handles.cube,'CurrentPoint');
 xmouse = mousepos(1,1);
 ymouse = mousepos(1,2);
 
+%Check if mouse is inside cube limits
 if xmouse > xlim(1) && xmouse < xlim(2) && ymouse > ylim(1) && ymouse < ylim(2)
-
-    %%% DO things
-    % use with the proper R matrix to rotate the cube
-
-    %%test = get(handles.Matriz, 'String');
-    %%Rmat = zeros(3,3);
-    %%Rmat(1) = str2double(test(1));
-    %%Rmat(2) = str2double(test(2));
-    %%Rmat(3) = str2double(test(3));
-    
-    %%Rmat(4) = str2double(test(4));
-    %%Rmat(5) = -str2double(test(6));
-    %%Rmat(6) = str2double(test(7));
-    
-    %%Rmat(7) = str2double(test(8));
-    %%Rmat(8) = str2double(test(9));
-    %%Rmat(9) = -str2double(test(11));
     
     
-    %vector(1) = str2double(get(handles.e_axis_x, 'String'));
-    %vector(2) = str2double(get(handles.e_axis_y, 'String'));
-    %vector(3) = str2double(get(handles.e_axis_z, 'String'));
-    %angle = str2double(get(handles.e_axis_angle, 'String'));
+    %Build end 3D point
+    rad = GetRad();
     
-    %[Rmat_test] = Eaa2rotMat(vector, angle);
+    %First case
+    if((xmouse*xmouse + ymouse*ymouse) < 0.5*(rad*rad))
+       
+        z = sqrt(rad*rad - xmouse*xmouse - ymouse*ymouse);
+        end_point = [xmouse;ymouse;z];
+        
+    %Second case
+    else
+        
+        z = (rad*rad)/(2*sqrt(xmouse*xmouse + ymouse*ymouse));
+        end_point = [xmouse;ymouse;z] / sqrt(xmouse*xmouse + ymouse*ymouse + z*z);
+        
+    end
     
-    %R = Rmat_test;
-    %handles.Cube = RedrawCube(R,handles.Cube);
+    %Build the rotation axis
+    start_point = GetStartPoint();
+    rotaxis = -cross(end_point,start_point);
+    %Build the rotation angle
+    angle = 0.2 * (acosd((end_point'*start_point) / (norm(start_point)*norm(end_point)))) * 180/pi;
+    %Build the rotation matrix from the axis and the angle
+    Rmat = Eaa2rotMat(rotaxis,angle * 0.1);
+    
+    
+    
+    %Apply the rotation
+    handles.Cube = RedrawCube(Rmat,handles.Cube);
     
 end
 guidata(hObject,handles);

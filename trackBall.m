@@ -584,6 +584,13 @@ set(handles.e_axis_z, 'String', e_axis(3));
 set(handles.e_axis_angle, 'String', rad2deg(angle));
 set(handles.e_axis_slider, 'Value', rad2deg(angle));
 
+%euler angles
+[phi, theta, psi] = rotM2eAngles(Rmat);
+
+set(handles.X_angle, 'String', phi);
+set(handles.Y_angle, 'String', theta);
+set(handles.Z_angle, 'String', psi);
+
 %Apply the rotation ---------------------------------------
 R = Rmat;
 handles.Cube = RedrawCube(R,handles.Cube);

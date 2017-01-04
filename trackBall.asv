@@ -538,15 +538,18 @@ function quaternion_calculate_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 %Get quaternion panel data --------------------------------
-quaternion(1) = str2double(get(handles.quaternion_i, 'String'));
+quat(1) = str2double(get(handles.quaternion_i, 'String'));
+quat(2) = str2double(get(handles.quaternion_X, 'String'));
+quat(3) = str2double(get(handles.quaternion_Y, 'String'));
+quat(4) = str2double(get(handles.quaternion_Z, 'String'));
+quat = quat';
+
+
+quaternion(1) = cosd(str2double(get(handles.quaternion_i, 'String'))/2);
 quaternion(2) = str2double(get(handles.quaternion_X, 'String'));
 quaternion(3) = str2double(get(handles.quaternion_Y, 'String'));
 quaternion(4) = str2double(get(handles.quaternion_Z, 'String'));
 quaternion = quaternion';
-
-if(round(norm(quaternion)) ~= 1)
-quaternion(1) = cosd(quaternion(1)/2);
-
 n = norm(quaternion(2:4));
 if(round(n) ~= 1)
     if(n ~= 0)
@@ -555,6 +558,9 @@ if(round(n) ~= 1)
 end
 quaternion(2:4) = sind(str2double(get(handles.quaternion_i, 'String'))/2) * quaternion(2:4);
  
+k = norm(quaternion);
+if(round(k) == 1)
+    disp('hoy follo');
 end
 
 %Calculate the rotation matrix ----------------------------

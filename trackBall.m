@@ -22,7 +22,7 @@ function varargout = trackBall(varargin)
 
 % Edit the above text to modify the response to help trackBall
 
-% Last Modified by GUIDE v2.5 03-Jan-2017 20:34:35
+% Last Modified by GUIDE v2.5 05-Jan-2017 20:25:44
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -695,6 +695,7 @@ function calculate_eulerAngles_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+%Get euler angles panel data ------------------------------
 X_ang = str2double(get(handles.X_angle, 'String'));
 Y_ang = str2double(get(handles.Y_angle, 'String'));
 Z_ang = str2double(get(handles.Z_angle, 'String'));
@@ -708,8 +709,8 @@ Rmat = RotwithEaaAngles(X_ang, Y_ang, Z_ang);
 set(handles.e_axis_x, 'String', e_axis(1));
 set(handles.e_axis_y, 'String', e_axis(2));
 set(handles.e_axis_z, 'String', e_axis(3));
-set(handles.e_axis_angle, 'String', angle);
-set(handles.e_axis_slider, 'Value', angle);
+set(handles.e_axis_angle, 'String', angle * 180/pi);
+set(handles.e_axis_slider, 'Value', angle * 180/pi);
 
 %Panel Quaternion -----------------------------------------
 Quaternion = rotm2quat(Rmat);
@@ -793,6 +794,132 @@ function Z_angle_Callback(hObject, eventdata, handles)
 % --- Executes during object creation, after setting all properties.
 function Z_angle_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to Z_angle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in calculate_rot_vec.
+function calculate_rot_vec_Callback(hObject, eventdata, handles)
+% hObject    handle to calculate_rot_vec (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%Get Rotation Vector panel data --------------------------
+rot_vec = zeros(3,1);
+rot_vec(1) = str2double(get(handles.rot_vec_x, 'String'));
+rot_vec(2) = str2double(get(handles.rot_vec_y, 'String'));
+rot_vec(3) = str2double(get(handles.rot_vec_z, 'String'));
+angle = norm(rot_vec) * 180/pi;
+vector = rot_vec/norm(rot_vec);
+
+%Calculate Rotation matrix with angles --------------------
+Rmat = Eaa2rotMat(vector,angle);
+
+%Update other panels --------------------------------------
+%Panel Euler principal Angle and Axis ---------------------
+set(handles.e_axis_x, 'String', vector(1));
+set(handles.e_axis_y, 'String', vector(2));
+set(handles.e_axis_z, 'String', vector(3));
+set(handles.e_axis_angle, 'String', angle);
+set(handles.e_axis_slider, 'Value', angle);
+
+%Panel Quaternion -----------------------------------------
+Quaternion = rotm2quat(Rmat);
+set(handles.quaternion_i, 'String', Quaternion(1));
+set(handles.quaternion_X, 'String', Quaternion(2));
+set(handles.quaternion_Y, 'String', Quaternion(3));
+set(handles.quaternion_Z, 'String', Quaternion(4));
+
+%Rotation Matrix ------------------------------------------
+set(handles.rotmat1_1, 'String', Rmat(1));
+set(handles.rotmat1_2, 'String', Rmat(4));
+set(handles.rotmat1_3, 'String', Rmat(7));
+set(handles.rotmat2_1, 'String', Rmat(2));
+set(handles.rotmat2_2, 'String', Rmat(5));
+set(handles.rotmat2_3, 'String', Rmat(8));
+set(handles.rotmat3_1, 'String', Rmat(3));
+set(handles.rotmat3_2, 'String', Rmat(6));
+set(handles.rotmat3_3, 'String', Rmat(9));
+
+%Euler Angles ---------------------------------------------
+[phi, theta, psi] = rotM2eAngles(Rmat);
+
+set(handles.X_angle, 'String', phi);
+set(handles.Y_angle, 'String', theta);
+set(handles.Z_angle, 'String', psi);
+
+%Apply the rotation ---------------------------------------
+R = Rmat;
+handles.Cube = RedrawCube(R,handles.Cube);
+
+
+
+
+
+function rot_vec_x_Callback(hObject, eventdata, handles)
+% hObject    handle to rot_vec_x (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of rot_vec_x as text
+%        str2double(get(hObject,'String')) returns contents of rot_vec_x as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function rot_vec_x_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to rot_vec_x (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function rot_vec_y_Callback(hObject, eventdata, handles)
+% hObject    handle to rot_vec_y (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of rot_vec_y as text
+%        str2double(get(hObject,'String')) returns contents of rot_vec_y as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function rot_vec_y_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to rot_vec_y (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function rot_vec_z_Callback(hObject, eventdata, handles)
+% hObject    handle to rot_vec_z (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of rot_vec_z as text
+%        str2double(get(hObject,'String')) returns contents of rot_vec_z as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function rot_vec_z_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to rot_vec_z (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 

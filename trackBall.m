@@ -364,11 +364,16 @@ function e_axis_calculate_Callback(hObject, eventdata, handles)
 vector(1) = str2double(get(handles.e_axis_x, 'String'));
 vector(2) = str2double(get(handles.e_axis_y, 'String'));
 vector(3) = str2double(get(handles.e_axis_z, 'String'));
+vector = vector / norm(vector);
+set(handles.e_axis_x, 'String',vector(1));
+set(handles.e_axis_y, 'String',vector(2));
+set(handles.e_axis_z, 'String',vector(3));
 angle = str2double(get(handles.e_axis_angle, 'String'));
 if(vector(1) ~= 0 || vector(2) ~= 0 || vector(3) ~= 0)
     
 %Calculate the rotation matrix ----------------------------
 Rmat = Eaa2rotMat(vector, angle);
+Rmat = check_zeros(Rmat);
 set(handles.rotmat1_1, 'String', Rmat(1));
 set(handles.rotmat1_2, 'String', Rmat(4));
 set(handles.rotmat1_3, 'String', Rmat(7));
@@ -383,6 +388,7 @@ set(handles.rotmat3_3, 'String', Rmat(9));
 %Update other panels --------------------------------------
 %Panel Quaternion -----------------------------------------
 Quaternion = rotm2quat(Rmat);
+Quaternion = check_zeros(Quaternion);
 set(handles.quaternion_i, 'String', Quaternion(1));
 set(handles.quaternion_X, 'String', Quaternion(2));
 set(handles.quaternion_Y, 'String', Quaternion(3));
@@ -390,12 +396,16 @@ set(handles.quaternion_Z, 'String', Quaternion(4));
 
 %Panel Euler Angles ---------------------------------------
 [phi, theta, psi] = rotM2eAngles(Rmat);
+phi = check_zeros(phi);
+theta = check_zeros(theta);
+psi = check_zeros(psi);
 set(handles.X_angle, 'String', phi);
 set(handles.Y_angle, 'String', theta);
 set(handles.Z_angle, 'String', psi);
 
 %Panel Rotation Vector ------------------------------------
 rot_vec = vector * (angle / (180/pi));
+rot_vec = check_zeros(rot_vec);
 set(handles.rot_vec_x, 'String', rot_vec(1));
 set(handles.rot_vec_y, 'String', rot_vec(2));
 set(handles.rot_vec_z, 'String', rot_vec(3));
@@ -403,7 +413,6 @@ set(handles.rot_vec_z, 'String', rot_vec(3));
 %Apply the rotation ---------------------------------------
 R = Rmat;
 handles.Cube = RedrawCube(R,handles.Cube);
-
 
 end
     
@@ -548,23 +557,16 @@ quaternion(2) = str2double(get(handles.quaternion_X, 'String'));
 quaternion(3) = str2double(get(handles.quaternion_Y, 'String'));
 quaternion(4) = str2double(get(handles.quaternion_Z, 'String'));
 quaternion = quaternion';
-
-if(round(norm(quaternion)) ~= 1)
-quaternion(1) = cosd(quaternion(1)/2);
-
-n = norm(quaternion(2:4));
-if(round(n) ~= 1)
-    if(n ~= 0)
-    quaternion(2:4) = quaternion(2:4) / n;
-    end
-end
-
-quaternion(2:4) = sind(str2double(get(handles.quaternion_i, 'String'))/2) * quaternion(2:4);
- 
-end
+quaternion = quaternion / norm(quaternion);
+quaternion = check_zeros(quaternion);
+set(handles.quaternion_i, 'String',quaternion(1));
+set(handles.quaternion_X, 'String',quaternion(2));
+set(handles.quaternion_Y, 'String',quaternion(3));
+set(handles.quaternion_Z, 'String',quaternion(4));
 
 %Calculate the rotation matrix ----------------------------
 Rmat = quat2rotm(quaternion);
+Rmat = check_zeros(Rmat);
 set(handles.rotmat1_1, 'String', Rmat(1));
 set(handles.rotmat1_2, 'String', Rmat(4));
 set(handles.rotmat1_3, 'String', Rmat(7));
@@ -576,14 +578,10 @@ set(handles.rotmat3_2, 'String', Rmat(6));
 set(handles.rotmat3_3, 'String', Rmat(9));
 
 %Update other panels --------------------------------------
-%Panel Quaternion -----------------------------------------
-set(handles.quaternion_i, 'String', quaternion(1));
-set(handles.quaternion_X, 'String', quaternion(2));
-set(handles.quaternion_Y, 'String', quaternion(3));
-set(handles.quaternion_Z, 'String', quaternion(4));
-
 % Panel Euler Axis and Angle ------------------------------
 [e_axis,angle] = rotMat2Eaa(Rmat);
+e_axis = check_zeros(e_axis);
+angle = check_zeros(angle);
 set(handles.e_axis_x, 'String', e_axis(1));
 set(handles.e_axis_y, 'String', e_axis(2));
 set(handles.e_axis_z, 'String', e_axis(3));
@@ -592,12 +590,16 @@ set(handles.e_axis_slider, 'Value', rad2deg(angle));
 
 %Euler Angles --------------------------------------------
 [phi, theta, psi] = rotM2eAngles(Rmat);
+phi = check_zeros(phi);
+theta = check_zeros(theta);
+psi = check_zeros(psi);
 set(handles.X_angle, 'String', phi);
 set(handles.Y_angle, 'String', theta);
 set(handles.Z_angle, 'String', psi);
 
 %Panel Rotation Vector ------------------------------------
 rot_vec = e_axis * angle;
+rot_vec = check_zeros(rot_vec);
 set(handles.rot_vec_x, 'String', rot_vec(1));
 set(handles.rot_vec_y, 'String', rot_vec(2));
 set(handles.rot_vec_z, 'String', rot_vec(3));
@@ -713,6 +715,7 @@ Z_ang = str2double(get(handles.Z_angle, 'String'));
 
 %Calculate Rotation matrix with angles --------------------
 Rmat = RotwithEaaAngles(X_ang, Y_ang, Z_ang);
+Rmat = check_zeros(Rmat);
 set(handles.rotmat1_1, 'String', Rmat(1));
 set(handles.rotmat1_2, 'String', Rmat(4));
 set(handles.rotmat1_3, 'String', Rmat(7));
@@ -726,6 +729,8 @@ set(handles.rotmat3_3, 'String', Rmat(9));
 %Update other panels --------------------------------------
 %Panel Euler principal Angle and Axis ---------------------
 [e_axis,angle] = rotMat2Eaa(Rmat);
+e_axis = check_zeros(e_axis);
+angle = check_zeros(angle);
 set(handles.e_axis_x, 'String', e_axis(1));
 set(handles.e_axis_y, 'String', e_axis(2));
 set(handles.e_axis_z, 'String', e_axis(3));
@@ -734,12 +739,14 @@ set(handles.e_axis_slider, 'Value', angle * 180/pi);
 
 %Panel Rotation Vector ------------------------------------
 rot_vec = e_axis * angle;
+rot_vec = check_zeros(rot_vec);
 set(handles.rot_vec_x, 'String',rot_vec(1));
 set(handles.rot_vec_y, 'String',rot_vec(2));
 set(handles.rot_vec_z, 'String',rot_vec(3));
 
 %Panel Quaternion -----------------------------------------
 Quaternion = rotm2quat(Rmat);
+Quaternion = check_zeros(Quaternion);
 set(handles.quaternion_i, 'String', Quaternion(1));
 set(handles.quaternion_X, 'String', Quaternion(2));
 set(handles.quaternion_Y, 'String', Quaternion(3));
@@ -835,6 +842,7 @@ vector = rot_vec/norm(rot_vec);
 
 %Calculate Rotation matrix with angles --------------------
 Rmat = Eaa2rotMat(vector,angle);
+Rmat = check_zeros(Rmat);
 set(handles.rotmat1_1, 'String', Rmat(1));
 set(handles.rotmat1_2, 'String', Rmat(4));
 set(handles.rotmat1_3, 'String', Rmat(7));
@@ -855,6 +863,7 @@ set(handles.e_axis_slider, 'Value', angle);
 
 %Panel Quaternion -----------------------------------------
 Quaternion = rotm2quat(Rmat);
+Quaternion = check_zeros(Quaternion);
 set(handles.quaternion_i, 'String', Quaternion(1));
 set(handles.quaternion_X, 'String', Quaternion(2));
 set(handles.quaternion_Y, 'String', Quaternion(3));
@@ -862,6 +871,9 @@ set(handles.quaternion_Z, 'String', Quaternion(4));
 
 %Euler Angles ---------------------------------------------
 [phi, theta, psi] = rotM2eAngles(Rmat);
+phi = check_zeros(phi);
+theta = check_zeros(theta);
+psi = check_zeros(psi);
 set(handles.X_angle, 'String', phi);
 set(handles.Y_angle, 'String', theta);
 set(handles.Z_angle, 'String', psi);

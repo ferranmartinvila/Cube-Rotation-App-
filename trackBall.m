@@ -67,6 +67,12 @@ set(handles.cube,'CameraPosition',...
 
 set(handles.cube,'xlim',[-3 3],'ylim',[-3 3],'visible','off','color','none');
 
+%Pre-Reset Globals
+sp = [0;0;0];
+SetStartPoint(sp);
+r_mat = [0,0,0;0,0,0;0,0,0];
+SetRmat(r_mat);
+
 % Choose default command line output for trackBall
 handles.output = hObject;
 
@@ -95,6 +101,11 @@ start_point = point;
 function point = GetStartPoint()
 global start_point;
 point = start_point;
+if(isempty(point) == 1)
+    
+   point = [0;0;0];
+   
+end
 
 function SetEndPoint(point)
 global end_point;
@@ -103,6 +114,24 @@ end_point = point;
 function point = GetEndPoint()
 global end_point;
 point = end_point;
+if(isempty(point) == 1)
+    
+   point = [0;0;0];
+   
+end
+
+function SetRmat(Rmat)
+global r_mat;
+r_mat = Rmat;
+
+function Rmat = GetRmat()
+global r_mat;
+Rmat = r_mat;
+if(isempty(Rmat) == 1)
+    
+   Rmat = zeros(3,3);
+   
+end
 
 function [rad] = GetRad()
 rad = 3;
@@ -138,9 +167,7 @@ if xmouse > xlim(1) && xmouse < xlim(2) && ymouse > ylim(1) && ymouse < ylim(2)
     end
     
     %Set the initial point
-    last_start_point = GetStartPoint();
-    SetStartPoint(start_point + last_start_point);
-    
+    SetStartPoint(start_point);
     
     set(handles.angle,'WindowButtonMotionFcn',{@my_MouseMoveFcn,hObject});
 end
@@ -149,6 +176,30 @@ guidata(hObject,handles)
 function my_MouseReleaseFcn(obj,event,hObject)
 handles=guidata(hObject);
 set(handles.angle,'WindowButtonMotionFcn','');
+
+
+    %Build the rotation axis
+    start_point = GetStartPoint();
+    end_point = GetEndPoint();
+    rotaxis = -cross(end_point,start_point);
+    last_Rmat = GetRmat();
+    if(last_Rmat ~= zeros(3,3))
+        
+        rotaxis = last_Rmat * rotaxis;
+    
+    end
+    %Build the rotation angle
+    angle = 0.2 * (acosd((end_point'*start_point) / (norm(start_point)*norm(end_point)))) * 180/pi;
+    %Build the rotation matrix from the axis and the angle
+    Rmat = Eaa2rotMat(rotaxis,angle * 0.1);
+   
+    if(last_Rmat ~= zeros(3,3))
+        
+        Rmat = last_Rmat * Rmat;
+    
+    end
+    SetRmat(Rmat);
+    
 guidata(hObject,handles);
 
 
@@ -181,16 +232,77 @@ if xmouse > xlim(1) && xmouse < xlim(2) && ymouse > ylim(1) && ymouse < ylim(2)
         end_point = [xmouse;ymouse;z] / sqrt(xmouse*xmouse + ymouse*ymouse + z*z);
         
     end
+   
     
+    %Set the End Point
+    SetEndPoint(end_point);
+
     %Build the rotation axis
     start_point = GetStartPoint();
     rotaxis = -cross(end_point,start_point);
+    last_Rmat = GetRmat();
+    if(last_Rmat ~= zeros(3,3))
+        
+        rotaxis = last_Rmat * rotaxis;
+    
+    end
     %Build the rotation angle
     angle = 0.2 * (acosd((end_point'*start_point) / (norm(start_point)*norm(end_point)))) * 180/pi;
     %Build the rotation matrix from the axis and the angle
     Rmat = Eaa2rotMat(rotaxis,angle * 0.1);
+    if(last_Rmat ~= zeros(3,3))
+        
+        Rmat = last_Rmat * Rmat;
     
+    end
     
+    %Update All the panels --------------------------------
+    %Quaternion Panel -------------------------------------
+    Quaternion = rotm2quat(Rmat);
+    Quaternion = check_zeros(Quaternion);
+    set(handles.quaternion_i, 'String', Quaternion(1));
+    set(handles.quaternion_X, 'String', Quaternion(2));
+    set(handles.quaternion_Y, 'String', Quaternion(3));
+    set(handles.quaternion_Z, 'String', Quaternion(4));
+    
+
+    % Panel Euler Axis and Angle ------------------------------
+    [e_axis,angle] = rotMat2Eaa(Rmat);
+    e_axis = check_zeros(e_axis);
+    angle = check_zeros(angle);
+    set(handles.e_axis_x, 'String', e_axis(1));
+    set(handles.e_axis_y, 'String', e_axis(2));
+    set(handles.e_axis_z, 'String', e_axis(3));
+    set(handles.e_axis_angle, 'String', rad2deg(angle));
+    set(handles.e_axis_slider, 'Value', rad2deg(angle));
+
+    %Euler Angles --------------------------------------------
+    [phi, theta, psi] = rotM2eAngles(Rmat);
+    phi = check_zeros(phi);
+    theta = check_zeros(theta);
+    psi = check_zeros(psi);
+    set(handles.X_angle, 'String', phi);
+    set(handles.Y_angle, 'String', theta);
+    set(handles.Z_angle, 'String', psi);
+
+    %Panel Rotation Vector ------------------------------------
+    rot_vec = e_axis * angle;
+    rot_vec = check_zeros(rot_vec);
+    set(handles.rot_vec_x, 'String', rot_vec(1));
+    set(handles.rot_vec_y, 'String', rot_vec(2));
+    set(handles.rot_vec_z, 'String', rot_vec(3));
+    
+    %Update Matrix
+    Rmat = check_zeros(Rmat);
+    set(handles.rotmat1_1, 'String', Rmat(1));
+    set(handles.rotmat1_2, 'String', Rmat(4));
+    set(handles.rotmat1_3, 'String', Rmat(7));
+    set(handles.rotmat2_1, 'String', Rmat(2));
+    set(handles.rotmat2_2, 'String', Rmat(5));
+    set(handles.rotmat2_3, 'String', Rmat(8));
+    set(handles.rotmat3_1, 'String', Rmat(3));
+    set(handles.rotmat3_2, 'String', Rmat(6));
+    set(handles.rotmat3_3, 'String', Rmat(9));
     
     %Apply the rotation
     handles.Cube = RedrawCube(Rmat,handles.Cube);
@@ -365,6 +477,7 @@ vector(1) = str2double(get(handles.e_axis_x, 'String'));
 vector(2) = str2double(get(handles.e_axis_y, 'String'));
 vector(3) = str2double(get(handles.e_axis_z, 'String'));
 vector = vector / norm(vector);
+vector = check_zeros(vector);
 set(handles.e_axis_x, 'String',vector(1));
 set(handles.e_axis_y, 'String',vector(2));
 set(handles.e_axis_z, 'String',vector(3));
@@ -411,8 +524,8 @@ set(handles.rot_vec_y, 'String', rot_vec(2));
 set(handles.rot_vec_z, 'String', rot_vec(3));
 
 %Apply the rotation ---------------------------------------
-R = Rmat;
-handles.Cube = RedrawCube(R,handles.Cube);
+SetRmat(Rmat);
+handles.Cube = RedrawCube(Rmat,handles.Cube);
 
 end
     
@@ -605,8 +718,8 @@ set(handles.rot_vec_y, 'String', rot_vec(2));
 set(handles.rot_vec_z, 'String', rot_vec(3));
 
 %Apply the rotation ---------------------------------------
-R = Rmat;
-handles.Cube = RedrawCube(R,handles.Cube);
+SetRmat(Rmat);
+handles.Cube = RedrawCube(Rmat,handles.Cube);
 
 
 
@@ -754,8 +867,8 @@ set(handles.quaternion_Z, 'String', Quaternion(4));
 
 
 %Apply the rotation ---------------------------------------
-R = Rmat;
-handles.Cube = RedrawCube(R,handles.Cube);
+SetRmat(Rmat);
+handles.Cube = RedrawCube(Rmat,handles.Cube);
 
 
 function X_angle_Callback(hObject, eventdata, handles)
@@ -838,7 +951,9 @@ rot_vec(1) = str2double(get(handles.rot_vec_x, 'String'));
 rot_vec(2) = str2double(get(handles.rot_vec_y, 'String'));
 rot_vec(3) = str2double(get(handles.rot_vec_z, 'String'));
 angle = norm(rot_vec) * 180/pi;
+angle = check_zeros(angle);
 vector = rot_vec/norm(rot_vec);
+vector = check_zeros(vector);
 
 %Calculate Rotation matrix with angles --------------------
 Rmat = Eaa2rotMat(vector,angle);
@@ -879,8 +994,8 @@ set(handles.Y_angle, 'String', theta);
 set(handles.Z_angle, 'String', psi);
 
 %Apply the rotation ---------------------------------------
-R = Rmat;
-handles.Cube = RedrawCube(R,handles.Cube);
+SetRmat(Rmat);
+handles.Cube = RedrawCube(Rmat,handles.Cube);
 
 
 

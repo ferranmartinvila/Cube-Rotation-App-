@@ -1,8 +1,20 @@
 function [axis, angle] = rotMat2Eaa (R)
 
-angle = acos((trace(R)-1)/2);
+check_cos = (trace(R)-1)/2;
 
-if round(angle, 6) == 0
+if check_cos < -1
+   
+    check_cos = -1;
+    
+elseif check_cos > 1
+    
+    check_cos = 1;
+    
+end
+
+angle = acos(check_cos);
+
+if round(angle, 3) == 0
     angle = 0;
 end
 

@@ -273,8 +273,8 @@ if xmouse > xlim(1) && xmouse < xlim(2) && ymouse > ylim(1) && ymouse < ylim(2)
     set(handles.e_axis_x, 'String', e_axis(1));
     set(handles.e_axis_y, 'String', e_axis(2));
     set(handles.e_axis_z, 'String', e_axis(3));
-    set(handles.e_axis_angle, 'String', rad2deg(angle));
-    set(handles.e_axis_slider, 'Value', rad2deg(angle));
+    set(handles.e_axis_angle, 'String', angle * 180/pi);
+    set(handles.e_axis_slider, 'Value', angle * 180/pi);
 
     %Euler Angles --------------------------------------------
     [phi, theta, psi] = rotM2eAngles(Rmat);
@@ -950,14 +950,22 @@ function calculate_rot_vec_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 %Get Rotation Vector panel data --------------------------
-rot_vec = zeros(3,1);
 rot_vec(1) = str2double(get(handles.rot_vec_x, 'String'));
 rot_vec(2) = str2double(get(handles.rot_vec_y, 'String'));
 rot_vec(3) = str2double(get(handles.rot_vec_z, 'String'));
-angle = norm(rot_vec) * 180/pi;
-angle = check_zeros(angle);
-vector = rot_vec/norm(rot_vec);
-vector = check_zeros(vector);
+if norm(rot_vec) == 0
+    
+    angle = 0;
+    vector = [0;0;0];
+    
+else
+    
+    angle = norm(rot_vec) * 180/pi;
+    angle = check_zeros(angle);
+    vector = rot_vec/norm(rot_vec);
+    vector = check_zeros(vector);
+
+end
 
 %Calculate Rotation matrix with angles --------------------
 Rmat = Eaa2rotMat(vector,angle);

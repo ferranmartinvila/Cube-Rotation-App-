@@ -476,7 +476,11 @@ function e_axis_calculate_Callback(hObject, eventdata, handles)
 vector(1) = str2double(get(handles.e_axis_x, 'String'));
 vector(2) = str2double(get(handles.e_axis_y, 'String'));
 vector(3) = str2double(get(handles.e_axis_z, 'String'));
-vector = vector / norm(vector);
+
+if norm(vector) ~= 0
+    vector = vector / norm(vector);
+end
+
 vector = check_zeros(vector);
 set(handles.e_axis_x, 'String',vector(1));
 set(handles.e_axis_y, 'String',vector(2));

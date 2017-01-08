@@ -973,6 +973,17 @@ set(handles.rotmat3_3, 'String', Rmat(9));
 set(handles.e_axis_x, 'String', vector(1));
 set(handles.e_axis_y, 'String', vector(2));
 set(handles.e_axis_z, 'String', vector(3));
+
+if angle > 360
+    angle = (angle/360) - floor(angle / 360);
+    angle = angle * 360;
+    
+    if angle > 180
+        angle = angle - 360;
+    end
+    
+end
+
 set(handles.e_axis_angle, 'String', angle);
 set(handles.e_axis_slider, 'Value', angle);
 

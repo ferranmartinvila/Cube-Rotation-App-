@@ -70,7 +70,7 @@ set(handles.cube,'xlim',[-3 3],'ylim',[-3 3],'visible','off','color','none');
 %Pre-Reset Globals
 sp = [0;0;0];
 SetStartPoint(sp);
-r_mat = [0,0,0;0,0,0;0,0,0];
+r_mat = [1,0,0;0,1,0;0,0,1];
 SetRmat(r_mat);
 
 % Choose default command line output for trackBall
@@ -142,9 +142,13 @@ function my_MouseClickFcn(obj,event,hObject)
 handles=guidata(obj);
 xlim = get(handles.cube,'xlim');
 ylim = get(handles.cube,'ylim');
-mousepos=get(handles.cube,'CurrentPoint');
+
+
+mousepos= get(handles.cube,'CurrentPoint');
 xmouse = mousepos(1,1);
 ymouse = mousepos(1,2);
+
+
 
 %Check if mouse is inside cube limits
 if xmouse > xlim(1) && xmouse < xlim(2) && ymouse > ylim(1) && ymouse < ylim(2)
@@ -185,7 +189,7 @@ set(handles.angle,'WindowButtonMotionFcn','');
     last_Rmat = GetRmat();
     if(last_Rmat ~= zeros(3,3))
         
-        rotaxis = last_Rmat * rotaxis;
+        rotaxis = last_Rmat' * rotaxis;
     
     end
     %Build the rotation angle
@@ -243,7 +247,7 @@ if xmouse > xlim(1) && xmouse < xlim(2) && ymouse > ylim(1) && ymouse < ylim(2)
     last_Rmat = GetRmat();
     if(last_Rmat ~= zeros(3,3))
         
-        rotaxis = last_Rmat * rotaxis;
+        rotaxis = last_Rmat' * rotaxis;
     
     end
     %Build the rotation angle

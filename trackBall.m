@@ -134,7 +134,7 @@ if(isempty(Rmat) == 1)
 end
 
 function [rad] = GetRad()
-rad = 3;
+rad = 5;
 % -------------------------------------
 
 function my_MouseClickFcn(obj,event,hObject)

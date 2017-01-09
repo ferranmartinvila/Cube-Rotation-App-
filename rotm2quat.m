@@ -9,7 +9,7 @@ if(length(rotmat(:,1)) == length(rotmat(1,:)) && length(rotmat(:,1)) == 3)
     q3 = (-rotmat(1,1) - rotmat(2,2) + rotmat(3,3) + 1) / 4;
     
     %Build the corretc quaternion
-    quat = zeros(1,4);
+    quat = zeros(4,1);
     if(q0 >= q1 && q0 >= q2 && q0 >= q3)
         
         quat(1) = 0.5 * sqrt(1+rotmat(1,1) + rotmat(2,2) + rotmat(3,3));
@@ -45,6 +45,8 @@ if(length(rotmat(:,1)) == length(rotmat(1,:)) && length(rotmat(:,1)) == 3)
         quat(4) = 0.5 * sqrt(1 - rotmat(1,1) - rotmat(2,2) + rotmat(3,3));
         
     end
+    
+
     
 else 
     

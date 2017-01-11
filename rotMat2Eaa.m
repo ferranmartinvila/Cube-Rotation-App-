@@ -18,7 +18,7 @@ if round(angle, 3) == 0
     angle = 0;
 end
 
-Ux = ((R - R.')/(2*sin(angle)));
+Ux = ((R - R')/(2*sin(angle)));
 
 if angle == 0    
     axis = [0;0;0];

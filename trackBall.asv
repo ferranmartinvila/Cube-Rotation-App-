@@ -186,18 +186,16 @@ set(handles.angle,'WindowButtonMotionFcn','');
 %Build the rotation axis
 start_point = GetStartPoint();
 end_point = GetEndPoint();
-
-not_zeros = (end_point(1) ~= 0 || end_point(2)~= 0 || end_point(3)~= 0);
-different = (end_point(1) ~= start_point(1) || end_point(2) ~= start_point(2) || end_point(3) ~= start_point(3));
-
-if not_zeros && different
+if (angle == 0 || (vector(1) == 0 && vector(2) == 0 && vector(3) == 0))
+   
+if (end_point ~= start_point || end_point(1) ~= 0
 
     rotaxis = (cross(start_point,end_point)/(norm(cross(start_point,end_point))));
     last_Rmat = quat2rotm(GetQuat());
     rotaxis = last_Rmat' * rotaxis;
 
     %Build the rotation angle
-    angle = acos((end_point'*start_point) / (norm(start_point)*norm(end_point))) * 180/pi * 2;
+    angle = acos((end_point'*start_point) / (norm(start_point)*norm(end_point))) * 180/pi;
     angle = check_zeros(angle);
     %Build the rotation quaternion from the axis and the angle
     current_quaternion = [cosd(angle/2);sind(angle/2)*rotaxis];
@@ -254,7 +252,7 @@ if xmouse > xlim(1) && xmouse < xlim(2) && ymouse > ylim(1) && ymouse < ylim(2)
         rotaxis = last_Rmat' * rotaxis;
 
         %Build the rotation angle
-        angle = acos((end_point'*start_point) / (norm(start_point)*norm(end_point))) * 180/pi * 2;
+        angle = acos((end_point'*start_point) / (norm(start_point)*norm(end_point))) * 180/pi;
 
         %Build the rotation quaternion from the axis and the angle
         current_quaternion = [cosd(angle/2);sind(angle/2)*rotaxis];

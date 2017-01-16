@@ -1,42 +1,37 @@
-function [axis, angle] = rotMat2Eaa (R)
+function [ euler_axis, angle ] = rotMat2Eaa( rotation_matrix )
+% Function to get the axis and the angle from a rotation matrix
 
-check_cos = (trace(R)-1)/2;
+%Trace of the function
+trace = sum(diag(rotation_matrix));
+%Angle of the rotation matrix
+angle = acosd((trace - 1)/2);
 
-if check_cos < -1
+ euler_axis = [0;0;0;];
+
+%0 angle case
+if round(angle) == 0   
    
-    check_cos = -1;
-    
-elseif check_cos > 1
-    
-    check_cos = 1;
-    
-end
+    disp('Angle is NULL');    
 
-angle = acos(check_cos);
-
-if round(angle, 3) == 0
-    angle = 0;
-end
-
-Ux = ((R - R')/(2*sin(angle)));
-
-if angle == 0    
-    axis = [0;0;0];
+%180 angle case 
+elseif round(angle) == 180
+   
+    %Identity matrix
+    I = eye(3);
     
-elseif angle == pi
+    uut = (rotation_matrix + I ) / (1-cosd(angle));
     
-    Ux1 = sqrt((R(1,1)+1)*0.5);
-    Ux2 = (0.5*R(1,2))/Ux1;
-    if Ux2 ~= 0
-        Ux3 = (0.5*R(1,3))/Ux2;
-    else
-        Ux3 = (0.5*R(1,3))
+    %Get euler axis from uut
+    euler_axis = sqrt(diag(uut));
     
-    end
-    axis = [Ux1;Ux2;Ux3];
-
 else
-    axis = [Ux(3,2);Ux(1,3);Ux(2,1)];
+    
+%Skew symmetric matrix
+Ux = (rotation_matrix - rotation_matrix')/(2* sind(angle));
+
+%Rotation axis from the skew symmetric matrix
+euler_axis = [-Ux(2,3);Ux(1,3);-Ux(1,2);];
+   
+end
 end
 
-end

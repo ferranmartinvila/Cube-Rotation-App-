@@ -242,8 +242,6 @@ if xmouse > xlim(1) && xmouse < xlim(2) && ymouse > ylim(1) && ymouse < ylim(2)
     
     %Set the End Point
     SetEndPoint(end_point);
-
-    
     start_point = GetStartPoint();
     
     if(start_point ~= end_point)
@@ -278,8 +276,8 @@ if xmouse > xlim(1) && xmouse < xlim(2) && ymouse > ylim(1) && ymouse < ylim(2)
         set(handles.e_axis_x, 'String', e_axis(1));
         set(handles.e_axis_y, 'String', e_axis(2));
         set(handles.e_axis_z, 'String', e_axis(3));
-        set(handles.e_axis_angle, 'String', e_angle * 180/pi);
-        set(handles.e_axis_slider, 'Value', e_angle * 180/pi);
+        set(handles.e_axis_angle, 'String', e_angle);
+        set(handles.e_axis_slider, 'Value', e_angle);
 
         %Euler Angles --------------------------------------------
         [phi, theta, psi] = rotM2eAngles(Rmat);
@@ -731,8 +729,8 @@ angle = check_zeros(angle);
 set(handles.e_axis_x, 'String', e_axis(1));
 set(handles.e_axis_y, 'String', e_axis(2));
 set(handles.e_axis_z, 'String', e_axis(3));
-set(handles.e_axis_angle, 'String', rad2deg(angle));
-set(handles.e_axis_slider, 'Value', rad2deg(angle));
+set(handles.e_axis_angle, 'String', angle);
+set(handles.e_axis_slider, 'Value', angle);
 
 %Euler Angles --------------------------------------------
 [phi, theta, psi] = rotM2eAngles(Rmat);
@@ -884,8 +882,8 @@ angle = check_zeros(angle);
 set(handles.e_axis_x, 'String', e_axis(1));
 set(handles.e_axis_y, 'String', e_axis(2));
 set(handles.e_axis_z, 'String', e_axis(3));
-set(handles.e_axis_angle, 'String', angle * 180/pi);
-set(handles.e_axis_slider, 'Value', angle * 180/pi);
+set(handles.e_axis_angle, 'String', angle);
+set(handles.e_axis_slider, 'Value', angle);
 
 % Panel Rotation Vector ------------------------------------
 rot_vec = e_axis * angle;
@@ -1027,9 +1025,10 @@ if angle > 360
     angle = (angle/360) - floor(angle / 360);
     angle = angle * 360;
     
-elseif angle > 180
+    if angle > 180
         
     angle = angle - 360;
+    end
     
 end
 
